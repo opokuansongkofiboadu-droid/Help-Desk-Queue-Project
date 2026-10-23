@@ -1,4 +1,6 @@
 from collections import deque
+import heapq
+
 
 
 def create_ticket(ticket_id,issue):
@@ -38,6 +40,19 @@ def undo_resolution(resolved_history,normal_queue):
         print("Resolved history is empty")
         return False
 
+priority_queue=[]
+order=0
+def escalate_ticket(priority_queue,priority,order,ticket):
+    order+=1
+    heapq.heappush(priority_queue,(priority,order,ticket))
+    return order
+
+def process_priority_ticket(priority_queue):
+    if priority_queue:
+       ticket= heapq.heappop(priority_queue)
+       return ticket[2] 
+    else:
+        print("Priority queue is empty")
 
 ticket1 = {"id": "T001", "issue": "Printer not working"}
 ticket2 = {"id": "T002", "issue": "Internet down"}
