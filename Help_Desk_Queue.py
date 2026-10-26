@@ -15,7 +15,7 @@ def add_ticket(normal_queue,ticket,ticket_ids):
 ticket_ids = set()
 def unique_ticket_IDs(ticket,ticket_ids):
     if ticket["id"] in ticket_ids:
-        print("Id has been assigned to a different task")
+        print("It has been assigned to a different task")
         return False
     else:
         ticket_ids.add(ticket["id"])
@@ -32,16 +32,27 @@ resolved_history =[]
 def add_to_resolved_history(resolved_history, ticket):
     resolved_history.append(ticket)
 
-def undo_resolution(resolved_history,normal_queue):
+def undo_resolution(resolved_history):
     if resolved_history:
-        ticket= resolved_history.pop()
-        normal_queue.append(ticket)
+        return resolved_history.pop()
+        
     else:
         print("Resolved history is empty")
         return False
 
+    
+
 priority_queue=[]
 order=0
+def remove_ticket_from_normal_queue(normal_queue, ticket_id ):
+    for ticket in normal_queue:
+        if ticket["id"]==ticket_id:
+            normal_queue.remove(ticket)
+            return ticket
+    else:
+        print("Ticket id not found")
+
+
 def escalate_ticket(priority_queue,priority,order,ticket):
     order+=1
     heapq.heappush(priority_queue,(priority,order,ticket))
@@ -49,20 +60,70 @@ def escalate_ticket(priority_queue,priority,order,ticket):
 
 def process_priority_ticket(priority_queue):
     if priority_queue:
-       ticket= heapq.heappop(priority_queue)
-       return ticket[2] 
+       heap_entry= heapq.heappop(priority_queue)
+       return heap_entry[2] 
     else:
         print("Priority queue is empty")
 
-ticket1 = {"id": "T001", "issue": "Printer not working"}
-ticket2 = {"id": "T002", "issue": "Internet down"}
 
 
-add_ticket(normal_queue, ticket1, ticket_ids)
-add_ticket(normal_queue, ticket2, ticket_ids)
+while True:
+    
+        command=input("Enter your command(create/escalate/process normal/process priortiy/undo/view/quit): ").strip().lower()
+        if command=="quit":
+            break
 
-ticket = process_normal_ticket(normal_queue)
+        elif command=="create":
+            ticket_id=input("Enter ticket_id(T___): ")
+            issue=input("What is the issue? ")
+        
+            ticket=create_ticket(ticket_id,issue)
+            add_ticket(normal_queue,ticket,ticket_ids)
 
-if ticket:
-    add_to_resolved_history(resolved_history, ticket)
-print(resolved_history)
+        elif command=="escalate":
+            ticket_id=input("Enter ticket_id(T___): ")
+            priority=int(input("What is the priority of this ticket? "))
+
+    
+            ticket=remove_ticket_from_normal_queue(normal_queue,ticket_id)
+    
+            if ticket:
+                order = escalate_ticket(priority_queue, priority, order, ticket)
+
+        elif command=="process normal":
+            ticket=process_normal_ticket(normal_queue)
+            if ticket:
+                add_to_resolved_history(resolved_history, ticket)
+
+        
+        elif command=="process priority":
+            ticket=process_priority_ticket(priority_queue)
+
+            if ticket:
+                add_to_resolved_history(resolved_history,ticket)
+
+        elif command=="undo":
+            ticket=undo_resolution(resolved_history)
+
+            if ticket:
+                normal_queue.append(ticket)
+
+        elif command=="view":
+            view=input("Normal/Prioity/Resolved? ").strip().lower()
+            if view=="normal":
+                print("Normal Queue")
+                for ticket in normal_queue:
+                    print(ticket)
+            elif view=="priority":
+                print("Priority Queue")
+                for ticket in priority_queue:
+                    print(ticket)
+            elif view=="resolved":
+                print("Resolved History")
+                for ticket in resolved_history:
+                    print(ticket)
+            else:
+                print("Invalid command")
+
+        else:
+            print("Invalid command")
