@@ -15,7 +15,7 @@ def add_ticket(normal_queue,ticket,ticket_ids):
 ticket_ids = set()
 def unique_ticket_IDs(ticket,ticket_ids):
     if ticket["id"] in ticket_ids:
-        print("Ticket ID has been assigned to a different task.Type in a different ID")
+        print("Ticket ID has been assigned to a different task. Type in a different ID")
         return False
     else:
         ticket_ids.add(ticket["id"])
@@ -64,7 +64,7 @@ def process_priority_ticket(priority_queue):
        return heap_entry[2] 
     else:
         print("Priority queue is empty")
-
+        return False
 def age_priority_queue(priority_queue):
     new_queue=[]
 
@@ -96,14 +96,18 @@ while True:
             add_ticket(normal_queue,ticket,ticket_ids)
 
         elif command=="escalate":
-            ticket_id=input("Enter ticket_id(T___): ")
-            priority=int(input("What is the priority of this ticket? "))
+            ticket_id=input("Enter ticket_id(T_ _ _): ")
+            try:
+                priority=int(input("What is the priority of this ticket? "))
+            except ValueError:
+                print("Priotiy must be a number")
+                continue
 
     
-            ticket=remove_ticket_from_normal_queue(normal_queue,ticket_id)
+                ticket=remove_ticket_from_normal_queue(normal_queue,ticket_id)
     
-            if ticket:
-                order = escalate_ticket(priority_queue, priority, order, ticket)
+                if ticket:
+                    order = escalate_ticket(priority_queue, priority, order, ticket)
 
         elif command=="process normal":
             ticket=process_normal_ticket(normal_queue)
@@ -128,8 +132,6 @@ while True:
         elif command=="view":
             view=input("Normal/Priority/Resolved? ").strip().lower()
             if view=="normal":
-                print(normal_queue)
-                print(len(normal_queue))
                 if normal_queue:
                     print("Normal Queue")
                     for ticket in normal_queue:
@@ -151,7 +153,7 @@ while True:
                     for ticket in resolved_history:
                         print(ticket)
                 else:
-                    print("Queue is empty")
+                    print("Resolved history is empty")
             else:
                 print("Invalid command")
 
