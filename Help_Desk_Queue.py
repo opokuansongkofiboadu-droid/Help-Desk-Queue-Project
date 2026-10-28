@@ -15,7 +15,7 @@ def add_ticket(normal_queue,ticket,ticket_ids):
 ticket_ids = set()
 def unique_ticket_IDs(ticket,ticket_ids):
     if ticket["id"] in ticket_ids:
-        print("It has been assigned to a different task")
+        print("Ticket ID has been assigned to a different task.Type in a different ID")
         return False
     else:
         ticket_ids.add(ticket["id"])
@@ -65,16 +65,31 @@ def process_priority_ticket(priority_queue):
     else:
         print("Priority queue is empty")
 
+def age_priority_queue(priority_queue):
+    new_queue=[]
+
+    if priority_queue:
+        for item in priority_queue:
+            priority=item[0]
+            order=item[1]
+            ticket=item[2]
+
+            if priority > 1:
+                priority -= 1
+
+            new_queue.append((priority, order, ticket))
+    heapq.heapify(new_queue)
+    return new_queue
 
 
 while True:
     
-        command=input("Enter your command(create/escalate/process normal/process priortiy/undo/view/quit): ").strip().lower()
+        command=input("Enter your command(create/escalate/process normal/process priority/undo/view/quit): ").strip().lower()
         if command=="quit":
             break
 
         elif command=="create":
-            ticket_id=input("Enter ticket_id(T___): ")
+            ticket_id=input("Enter ticket_id(T_ _ _): ")
             issue=input("What is the issue? ")
         
             ticket=create_ticket(ticket_id,issue)
@@ -101,6 +116,8 @@ while True:
 
             if ticket:
                 add_to_resolved_history(resolved_history,ticket)
+                priority_queue=age_priority_queue(priority_queue)
+
 
         elif command=="undo":
             ticket=undo_resolution(resolved_history)
@@ -109,21 +126,35 @@ while True:
                 normal_queue.append(ticket)
 
         elif command=="view":
-            view=input("Normal/Prioity/Resolved? ").strip().lower()
+            view=input("Normal/Priority/Resolved? ").strip().lower()
             if view=="normal":
-                print("Normal Queue")
-                for ticket in normal_queue:
-                    print(ticket)
+                print(normal_queue)
+                print(len(normal_queue))
+                if normal_queue:
+                    print("Normal Queue")
+                    for ticket in normal_queue:
+                        print(ticket)
+                else:
+                    print("Queue is empty")  
+
             elif view=="priority":
-                print("Priority Queue")
-                for ticket in priority_queue:
-                    print(ticket)
+                if priority_queue:
+                    print("Priority Queue")
+                    for ticket in priority_queue:
+                        print(ticket)
+                else:
+                    print("Queue is empty")
+
             elif view=="resolved":
-                print("Resolved History")
-                for ticket in resolved_history:
-                    print(ticket)
+                if resolved_history:
+                    print("Resolved History")
+                    for ticket in resolved_history:
+                        print(ticket)
+                else:
+                    print("Queue is empty")
             else:
                 print("Invalid command")
 
         else:
             print("Invalid command")
+
